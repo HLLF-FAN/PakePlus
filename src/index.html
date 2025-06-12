@@ -1,22 +1,120 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="styles.css" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus App</title>
-        <script type="module" src="/main.js" defer></script>
-    </head>
+<html>
 
-    <body>
-        <main class="container">
-            <h1>Welcome to PakePlus</h1>
+<head>
+    <meta charset="utf-8" />
+    <title>CNQuake2.0</title>
+    <link rel="shortcut icon" href="./img/favicon.svg">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.6, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <script src="https://cdn.iocdn.cc/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="./css/toastr.min.css">
+    <script src="https://cdn.iocdn.cc/npm/toastr@2.1.4/toastr.min.js"></script>
+    <script src="https://cdn.iocdn.cc/npm/opencc-js@1.0.5/dist/umd/t2cn.js"></script>
+    <link rel="manifest" href="./manifest.json">
+    <script async src="https://umami.fanstudio.tech/script.js" data-website-id="d8e3d088-fab7-4a6d-9911-f8845c722e63"></script>
+    <link rel="stylesheet" href="./css/index.css">
+    <!-- 循环添加 -->
+    <script type="text/javascript">
+        $(document).ready(function() {
+          const container = $("#cencList");
+          for (let i = 1; i <= 50; i++) {
+            const listBarHTML = `
+        					<div id="list_Bar${i}" class="listBar">
+        						<span class="listTime" id="listTime${i}">01月01日 00:00</span>
+        						<span class="listDistance" id="listDistance${i}">距离:100km</span>
+        						<span class="listEpicenter" id="listEpicenter${i}">载入中</span>
+        						<span class="listType" id="listType${i}">坤坤测定</span>
+        						<span class="listMagnitude" id="listMagnitude${i}">M0.0</span>
+        						<span class="listDepth" id="listDepth${i}">深度:10Km</span>
+        						<div class="listMaxInt" id="listMaxInt${i}">-</div>
+        					</div>`;
+            container.append(listBarHTML);
+          }
+        
+          function handleMouseMove(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            this.style.setProperty('--mouse-x', `${x}px`);
+            this.style.setProperty('--mouse-y', `${y}px`);
+          }
+        
+          container.on('mouseenter', '.listBar', function() {
+            $(this).addClass('dimmed');
+            $(this).on('mousemove', handleMouseMove);
+          });
+        
+          container.on('mouseleave', '.listBar', function() {
+            $(this).removeClass('dimmed');
+            $(this).off('mousemove', handleMouseMove);
+          });
+        });
+    </script>
+    <script charset="utf-8" src="https://map.qq.com/api/gljs?v=1.exp&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&libraries=vector"></script>
+    <script async src="./js/TravelTimes.js"></script>
+    <script async src="./js/locte.js"></script>
+    <script defer src="./js/index.js"></script>
+</head>
 
-            <form class="row" id="greet-form">
-                <input id="greet-input" placeholder="Enter a name..." />
-                <button type="submit">Greet</button>
-            </form>
-            <p id="greet-msg"></p>
-        </main>
-    </body>
+<body>
+    <div id="container">
+        <span id="vsiontext">获取版本中...</span>
+        <button id="settings-icon">
+            <i></i>
+        </button>
+        <input type="button" id="set-EaseTo" onclick="easeTo()" value="边缘贴合">
+        <input type="button" id="cencPopupsclose" onclick="closeCencPopups()" value="清空弹窗">
+        <div id="map"></div>
+        <div id="mapLegend">
+            <h3>图例</h3>
+            <div id="sWave1_lg"><img class="legend-icon" src='img/sWave.svg'></div>
+            <div id="sWave2_lg"><img class="legend-icon" src='img/sWaveMark.svg'><span>横波</span></div>
+            <div id="pWave_lg"><img class="legend-icon" src='img/pWave.svg'><span>纵波</span></div>
+            <div id="center_lg"><img class="legend-icon" style="width:25px; height:25px;" src='img/Source-Copy.png'><span>震中</span></div>
+        </div>
+        <div id="eew_Bar">
+            <div id="eew_source">-----预警 第-报</div>
+            <div id="eew_Information">---- flex --时--分--秒\n发生-.-级地震, 震中烈度-.-度,\n本地烈度-.-度, ----</div>
+            <div id="eew_countdown">--</div>
+            <div id="miaohou">秒后</div>
+            <div id="eew_wavedown">地震横波将到达 德阳市旌阳区</div>
+        </div>
+        <div id="serverTime">2024/01/01 00:00:00</div>
+    </div>
+
+    <div id="cencList">
+        <!-- <div id="list_Bar1"> 
+    优化省略
+    -->
+    </div>
+
+    <div id="overlay"></div>
+
+    <div id="settings-box">
+        <h2>设置</h2>
+
+        <div class="form-group">
+            <label for="longitude">经度：</label>
+            <input type="text" id="longitude" placeholder="请输入经度">
+        </div>
+
+        <div class="form-group">
+            <label for="latitude">纬度：</label>
+            <input type="text" id="latitude" placeholder="请输入纬度">
+        </div>
+
+        <div class="form-group">
+            <label for="location">地名：</label>
+            <input type="text" id="location" placeholder="请输入地名">
+        </div>
+
+        <div class="form-group button-group">
+            <button id="save-settings">保存</button>
+            <button id="cancel-settings">取消</button>
+        </div>
+    </div>
+</body>
+
 </html>
